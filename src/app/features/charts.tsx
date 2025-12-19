@@ -142,6 +142,33 @@ export default function ChartsUI() {
     }
   };
 
+  function handleShare() {
+  if (!result || fuckAround === null || findOut === null) return;
+
+  const shareText = `FAFO Chart Result 🚨
+
+F*** Around: ${fuckAround}/10
+Find Out: ${findOut}/10
+Zone: ${result.zone}
+
+"${result.explanation}"
+
+Chaos evaluated at Chaos Labs 🌀`;
+
+  if (navigator.share) {
+    navigator.share({
+      title: "FAFO Chart Result",
+      text: shareText,
+      url: window.location.href,
+    }).catch(() => {});
+  } else {
+    navigator.clipboard.writeText(shareText).then(() => {
+      alert("Result copied to clipboard 📋");
+    });
+  }
+}
+
+
   return (
     <div className="max-w-4xl mx-auto p-4 sm:p-6">
       {/* Header with theme toggle */}
@@ -308,7 +335,7 @@ export default function ChartsUI() {
           className={`mt-6 transition-all duration-300 border-l-4 ${getZoneColorClass(result.zone)} 
             bg-gray-900/80 backdrop-blur-sm`}
         >
-          <CardContent className="p-6 space-y-2">
+          <CardContent className="p-6 space-y-4">
             <h3 className="text-lg font-semibold flex items-center gap-2">
               {/* Animated indicator for transient states */}
               {result.zone === "THINKING" && (
@@ -328,6 +355,17 @@ export default function ChartsUI() {
             <p className="text-sm text-gray-300 leading-relaxed">
               {result.explanation}
             </p>
+
+            <div className="pt-2 flex justify-end">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleShare}
+                className="text-xs"
+              >
+                Share Chaos 🔥
+              </Button>
+            </div>
           </CardContent>
         </Card>
       )}
