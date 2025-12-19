@@ -13,6 +13,8 @@ import { buildFafoContext } from "@/lib/fafoContext";
   findOut: number;
 }
 
+export const runtime = "nodejs";
+
 
 function ensureFafoInput(input: unknown): FafoInput {
     if (!input || typeof input !== "object") {

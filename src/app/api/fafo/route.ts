@@ -3,6 +3,8 @@ import { analyzeChart } from "../charts/router";
 import { encodeToon } from "@/lib/toon";
 import { openRouter } from "@/lib/openrouter";
 
+export const runtime = "nodejs";
+
 function extractNumbsFromLLM(text: string): { 
     fuckAround: number;
     findOut: number;
