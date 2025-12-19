@@ -12,6 +12,14 @@ import {
   TabsTrigger,
   TabsContent,
 } from "@/components/ui/tabs";
+import { 
+  Share, 
+  Twitter, 
+  Facebook, 
+  Mail,
+  MessageCircle,
+  MessageSquare 
+} from 'lucide-react';
 import { ThemeToggle } from "@/components/ThemeToggle";
 
 import { CrazyHotChart } from "@/components/charts/CrazyHotChart";
@@ -142,32 +150,60 @@ export default function ChartsUI() {
     }
   };
 
-  function handleShare() {
-  if (!result || fuckAround === null || findOut === null) return;
+  function handleShare(platform?: 'whatsapp' | 'twitter' | 'facebook' | 'telegram' | 'email') {
+  if (
+    !result ||
+    !result.zone ||
+    !result.explanation ||
+    fuckAround == null ||
+    findOut == null
+  ) {
+    alert("No result to share yet!");
+    return;
+  }
 
-  const shareText = `FAFO Chart Result 🚨
+  const shareText = `FAFO Chart Result 🚨\n\nF*** Around: ${fuckAround}/10\nFind Out: ${findOut}/10\nZone: ${result.zone}\n\n"${result.explanation}"\n\nChaos evaluated at Chaos Labs 🌀`;
+  const url = encodeURIComponent(window.location.href);
+  const encodedText = encodeURIComponent(shareText);
 
-F*** Around: ${fuckAround}/10
-Find Out: ${findOut}/10
-Zone: ${result.zone}
+  if (!platform) {
+    // 🌐 Native share (best UX on mobile)
+    if (navigator.share) {
+      navigator.share({
+        title: "FAFO Chart Result",
+        text: shareText,
+        url: window.location.href,
+      }).catch((err) => {
+        if (err.name !== 'AbortError') {
+          console.warn("Share failed:", err);
+        }
+      });
+      return;
+    }
 
-"${result.explanation}"
+    // 📋 Fallback: copy to clipboard
+    navigator.clipboard.writeText(shareText)
+      .then(() => alert("📋 Copied! Paste anywhere (WhatsApp, Notes, etc.)"))
+      .catch(() => alert("Failed to copy. Try sharing manually."));
+    return;
+  }
 
-Chaos evaluated at Chaos Labs 🌀`;
+  // 🚀 Platform-specific links
+  const links: Record<string, string> = {
+    whatsapp: `https://wa.me/?text=${encodedText}`,
+    twitter: `https://twitter.com/intent/tweet?text=${encodedText}&url=${url}`,
+    facebook: `https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${encodedText}`,
+    telegram: `https://t.me/share/url?url=${url}&text=${encodedText}`,
+    email: `mailto:?subject=FAFO%20Chart%20Result&body=${encodedText}%0A%0A${url}`,
+  };
 
-  if (navigator.share) {
-    navigator.share({
-      title: "FAFO Chart Result",
-      text: shareText,
-      url: window.location.href,
-    }).catch(() => {});
+  const shareUrl = links[platform];
+  if (shareUrl) {
+    window.open(shareUrl, '_blank', 'noopener,noreferrer');
   } else {
-    navigator.clipboard.writeText(shareText).then(() => {
-      alert("Result copied to clipboard 📋");
-    });
+    console.warn(`Unknown platform: ${platform}`);
   }
 }
-
 
   return (
     <div className="max-w-4xl mx-auto p-4 sm:p-6">
@@ -356,16 +392,47 @@ Chaos evaluated at Chaos Labs 🌀`;
               {result.explanation}
             </p>
 
-            <div className="pt-2 flex justify-end">
+           <div className="pt-2 flex flex-wrap gap-1 justify-end">
               <Button
-                variant="outline"
                 size="sm"
-                onClick={handleShare}
+                variant="outline"
+                onClick={() => handleShare()}
                 className="text-xs"
+                title="Share anywhere"
               >
-                Share Chaos 🔥
+                <Share className="w-3.5 h-3.5 mr-1" /> Anywhere
               </Button>
-            </div>
+
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => handleShare('whatsapp')}
+                className="text-xs text-green-500 hover:text-green-400"
+                title="Share via WhatsApp"
+              >
+                <MessageCircle className="w-3.5 h-3.5" />
+              </Button>
+              
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => handleShare('facebook')}
+                className="text-xs text-blue-600 hover:text-blue-500"
+                title="Share on Facebook"
+              >
+                <Facebook className="w-3.5 h-3.5" />
+              </Button>
+
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => handleShare('email')}
+                className="text-xs"
+                title="Share via email"
+              >
+                <Mail className="w-3.5 h-3.5" />
+              </Button>
+              </div>
           </CardContent>
         </Card>
       )}
